@@ -1,0 +1,17 @@
+version: "3"
+services:
+ web:
+    image: pet-shop-security:v3
+    container_name: pet-shop-security
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-dsv}
+    ports: 
+      - '8080:8080'
+    networks:
+      - pet-shop-security-network
+networks:
+ pet-shop-security-network:
+   driver: bridge
