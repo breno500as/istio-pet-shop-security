@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+metadata:
+ name: pet-shop-security
+kind: Deployment
+spec:
+ replicas: 2
+ selector:
+    matchLabels:
+      app: pet-shop-security
+ template:
+   metadata:
+    labels:
+      app: pet-shop-security
+   spec:
+     containers:
+      - name: web
+        image: breno500as/pet-shop-security:v1
+        ports:
+         - name: pet-shop-security-port
+           containerPort: 8080
+        livenessProbe: #Configuração do health check
+           httpGet:
+             path: /pet-shop/actuator/health
+             port: pet-shop-security-port
+           initialDelaySeconds: 100 #delay de 100 segundos antes de iniciar o health check
+           timeoutSeconds: 100
+           periodSeconds: 10 #período de 10 segundos para cada rechecagem de saúde
+        readinessProbe: #Configuração do health check
+             httpGet:
+               path: /pet-shop/actuator/health
+               port: pet-shop-security-port
+             initialDelaySeconds: 100 #delay de 100 segundos antes de iniciar o health check
+             timeoutSeconds: 10
+             periodSeconds: 10
+         
