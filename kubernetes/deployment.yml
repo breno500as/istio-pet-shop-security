@@ -14,7 +14,7 @@ spec:
    spec:
      containers:
       - name: web
-        image: breno500as/pet-shop-security:v1
+        image: breno500as/pet-shop-security:v4
         ports:
          - name: pet-shop-security-port
            containerPort: 8080
