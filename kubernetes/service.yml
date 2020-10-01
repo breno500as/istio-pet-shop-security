@@ -10,7 +10,5 @@ spec:
     nodePort: 31002
     targetPort: ps-sec-port
     protocol: TCP
-  selector:  #service para o pod com o label app helloworld
-    app: pet-shop-security #service para o pod com o label app helloworld
   type: NodePort
    
