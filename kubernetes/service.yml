@@ -6,9 +6,11 @@ spec:
   selector:
    app: pet-shop-security
   ports:
-  - name: ps-sec-port
-    port: 8080
+  - port: 31002 #a porta deve ser maior que 31000
+    nodePort: 31002
     targetPort: ps-sec-port
+    protocol: TCP
   selector:  #service para o pod com o label app helloworld
-    app: sca-eureka-deployment #service para o pod com o label app helloworld
+    app: pet-shop-security #service para o pod com o label app helloworld
+  type: NodePort
    
