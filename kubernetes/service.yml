@@ -1,4 +1,4 @@
-apiVersion: apps/v1
+apiVersion: v1
 metadata:
  name: pet-shop-security-service
 kind: Service
@@ -6,9 +6,9 @@ spec:
   selector:
    app: pet-shop-security
   ports:
-  - name: pet-shop-security-port
-    port: pet-shop-security-port
-    targetPort: pet-shop-security-port
+  - name: ps-sec-port
+    port: 8080
+    targetPort: ps-sec-port
   selector:  #service para o pod com o label app helloworld
     app: sca-eureka-deployment #service para o pod com o label app helloworld
    

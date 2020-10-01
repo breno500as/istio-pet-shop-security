@@ -1,7 +1,7 @@
 version: "3"
 services:
  web:
-    image: pet-shop-security:v4
+    image: pet-shop-security:v5
     container_name: pet-shop-security
     build:
       context: .
