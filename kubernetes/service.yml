@@ -6,9 +6,6 @@ spec:
   selector:
    app: pet-shop-security
   ports:
-  - port: 31002 #a porta deve ser maior que 31000
-    nodePort: 31002
-    targetPort: ps-sec-port
-    protocol: TCP
-  type: NodePort
-   
+   - name: http #nome da porta para acessar o container docker dentro do pod, é o mesmo nome configurado no objeto deployment
+     port: 80 #porta externa de acesso ao serviço
+     targetPort: 8080 #porta para acessar o container docker dentro do pod, é a mesma porta configurada no objeto deployment

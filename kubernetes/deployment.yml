@@ -13,22 +13,22 @@ spec:
       app: pet-shop-security
    spec:
      containers:
-      - name: web
+      - name: pet-shop-security
         image: breno500as/pet-shop-security:v5
         ports:
-         - name: ps-sec-port
+         - name: http
            containerPort: 8080
         livenessProbe: #Configuração do health check
            httpGet:
              path: /pet-shop/actuator/health
-             port: ps-sec-port
+             port: http
            initialDelaySeconds: 100 #delay de 100 segundos antes de iniciar o health check
            timeoutSeconds: 100
            periodSeconds: 10 #período de 10 segundos para cada rechecagem de saúde
         readinessProbe: #Configuração do health check
              httpGet:
                path: /pet-shop/actuator/health
-               port: ps-sec-port
+               port: http
              initialDelaySeconds: 100 #delay de 100 segundos antes de iniciar o health check
              timeoutSeconds: 10
              periodSeconds: 10
