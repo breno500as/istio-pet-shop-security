@@ -41,11 +41,10 @@ CREATE TABLE IF NOT EXISTS oauth_code (
 );
 
 CREATE TABLE IF NOT EXISTS users (
-  id INT AUTO_INCREMENT PRIMARY KEY,
+  id bigint NOT NULL  PRIMARY KEY,
   username VARCHAR(256) NOT NULL,
   password VARCHAR(256) NOT NULL,
-  enabled TINYINT(1),
-  UNIQUE KEY unique_username(username)
+  enabled int
 );
 
 CREATE TABLE IF NOT EXISTS authorities (
