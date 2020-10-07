@@ -23,7 +23,7 @@ services:
          - POSTGRES_USER=postgres
          - POSTGRES_DB=pet-shop-security
     networks:
-      - sca-api-gateway-network
+      - pet-shop-security-network
    
 networks:
  pet-shop-security-network:
