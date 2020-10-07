@@ -1,6 +1,9 @@
 package com.istio.pet.shop.security.configuration;
 
 import java.security.KeyPair;
+import java.security.interfaces.RSAPublicKey;
+import java.util.Collections;
+import java.util.Map;
 
 import javax.sql.DataSource;
 
@@ -22,11 +25,17 @@ import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenCo
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
 
-@Configuration
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.KeyUse;
+import com.nimbusds.jose.jwk.RSAKey;
+
+
+
 @EnableAuthorizationServer
 @EnableConfigurationProperties(SecurityProperties.class)
+@Configuration
 public class AuthorizationServerConfiguration extends AuthorizationServerConfigurerAdapter {
-
 
 	private final DataSource dataSource;
 	private final PasswordEncoder passwordEncoder;
@@ -34,7 +43,8 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
 	private final SecurityProperties securityProperties;
 	private final UserDetailsService userDetailsService;
 
-	private JwtAccessTokenConverter jwtAccessTokenConverter;
+	private static final String JWK_KID = "pet-shop-key-id";
+
 	private TokenStore tokenStore;
 
 	public AuthorizationServerConfiguration(final DataSource dataSource, final PasswordEncoder passwordEncoder,
@@ -56,8 +66,7 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
 	}
 
 	@Bean
-	public DefaultTokenServices tokenServices(final TokenStore tokenStore,
-			final ClientDetailsService clientDetailsService) {
+	public DefaultTokenServices tokenServices(final TokenStore tokenStore, final ClientDetailsService clientDetailsService) {
 		DefaultTokenServices tokenServices = new DefaultTokenServices();
 		tokenServices.setSupportRefreshToken(true);
 		tokenServices.setTokenStore(tokenStore);
@@ -68,16 +77,23 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
 
 	@Bean
 	public JwtAccessTokenConverter jwtAccessTokenConverter() {
-		if (jwtAccessTokenConverter != null) {
-			return jwtAccessTokenConverter;
-		}
+		Map<String, String> customHeaders = Collections.singletonMap("kid", JWK_KID);
+		return new JwtCustomHeadersAccessTokenConverter(customHeaders, keyPair());
+	}
 
+	@Bean
+	public KeyPair keyPair() {
 		SecurityProperties.JwtProperties jwtProperties = securityProperties.getJwt();
-		KeyPair keyPair = keyPair(jwtProperties, keyStoreKeyFactory(jwtProperties));
+		return keyPair(jwtProperties, keyStoreKeyFactory(jwtProperties));
+	}
 
-		jwtAccessTokenConverter = new JwtAccessTokenConverter();
-		jwtAccessTokenConverter.setKeyPair(keyPair);
-		return jwtAccessTokenConverter;
+	@Bean
+	public JWKSet jwkSet() {
+		RSAKey.Builder builder = new RSAKey.Builder((RSAPublicKey) keyPair().getPublic())
+				                           .keyUse(KeyUse.SIGNATURE)
+				                           .algorithm(JWSAlgorithm.RS256)
+				                           .keyID(JWK_KID);
+		return new JWKSet(builder.build());
 	}
 
 	@Override
@@ -87,14 +103,17 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
 
 	@Override
 	public void configure(final AuthorizationServerEndpointsConfigurer endpoints) {
-		endpoints.authenticationManager(this.authenticationManager).accessTokenConverter(jwtAccessTokenConverter())
-				.userDetailsService(this.userDetailsService).tokenStore(tokenStore());
+		endpoints.authenticationManager(this.authenticationManager)
+		         .accessTokenConverter(jwtAccessTokenConverter())
+				 .userDetailsService(this.userDetailsService)
+				 .tokenStore(tokenStore());
 	}
 
 	@Override
 	public void configure(final AuthorizationServerSecurityConfigurer oauthServer) {
-		oauthServer.passwordEncoder(this.passwordEncoder).tokenKeyAccess("permitAll()")
-				.checkTokenAccess("isAuthenticated()");
+		oauthServer.passwordEncoder(this.passwordEncoder)
+		           .tokenKeyAccess("permitAll()")
+				   .checkTokenAccess("isAuthenticated()");
 	}
 
 	private KeyPair keyPair(SecurityProperties.JwtProperties jwtProperties, KeyStoreKeyFactory keyStoreKeyFactory) {
