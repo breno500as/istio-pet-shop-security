@@ -6,6 +6,7 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,7 +24,6 @@ import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.istio.pet.shop.security.configuration.KeyStoreKeyFactory;
 import com.istio.pet.shop.security.configuration.SecurityProperties;
-import com.istio.pet.shop.security.entity.Constants;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.KeyUse;
@@ -44,7 +44,15 @@ public class JwtService {
 	
 	private SecurityProperties securityProperties;
 	
-	private static final String JWK_KID = "pet-shop-key-id";
+	public static final String JWK_SECRETS = "pet-shop-security@istio-pet-shop-security.herokuapp.com";
+	
+	public static final String ID_USUARIO_LOGADO = "id";
+
+	public static final String NOME_USUARIO_LOGADO = "nome";
+
+	public static final String EMAIL_USUARIO_LOGADO = "email";
+
+	public static final String PERMISSOES_USUARIO_LOGADO = "permissoes";
 
 
 	/**
@@ -74,12 +82,15 @@ public class JwtService {
 			final KeyPair keyPair = keyPair();
 		    Algorithm algorithm = Algorithm.RSA256((RSAPublicKey) keyPair.getPublic(), (RSAPrivateKey) keyPair.getPrivate());
 		    
-		    return JWT.create().withIssuer(JWK_KID)
-					    	   .withClaim(Constants.ID_USUARIO_LOGADO, id)
-							   .withClaim(Constants.NOME_USUARIO_LOGADO, nome)
-							   .withClaim(Constants.EMAIL_USUARIO_LOGADO, email)
-							   .withArrayClaim(Constants.PERMISSOES_USUARIO_LOGADO, permissoes != null ? permissoes.stream().toArray(String[]::new) : null)
-							   .withExpiresAt(expiresAt.getTime())
+		    return JWT.create().withKeyId(JWK_SECRETS)
+		    		           .withIssuer(JWK_SECRETS)
+		    		           .withSubject(JWK_SECRETS)
+		    		           .withIssuedAt(new Date())
+		    		           .withExpiresAt(expiresAt.getTime())
+					    	   .withClaim(ID_USUARIO_LOGADO, id)
+							   .withClaim(NOME_USUARIO_LOGADO, nome)
+							   .withClaim(EMAIL_USUARIO_LOGADO, email)
+							   .withArrayClaim(PERMISSOES_USUARIO_LOGADO, permissoes != null ? permissoes.stream().toArray(String[]::new) : null)
 					           .sign(algorithm);
 				 
 		} catch (final IllegalArgumentException e) {
@@ -128,8 +139,10 @@ public class JwtService {
 	public List<String> getDadosUsuarioToken(final String authorizationHeaderToken) {
 
 		final DecodedJWT jwt = verifyAuthToken(authorizationHeaderToken);
+		
+		 
 
-		final Claim claimIdUsuario = jwt.getClaim(Constants.ID_USUARIO_LOGADO);
+		final Claim claimIdUsuario = jwt.getClaim(ID_USUARIO_LOGADO);
 
 		// Id do usuário é obrigatório no token
 		if (claimIdUsuario == null) {
@@ -139,10 +152,10 @@ public class JwtService {
 		final List<String> dadosUsuario = new ArrayList<String>();
 
 		dadosUsuario.add(claimIdUsuario.asLong().toString());
-		dadosUsuario.add(jwt.getClaim(Constants.NOME_USUARIO_LOGADO).asString());
-		dadosUsuario.add(jwt.getClaim(Constants.EMAIL_USUARIO_LOGADO).asString());
+		dadosUsuario.add(jwt.getClaim(NOME_USUARIO_LOGADO).asString());
+		dadosUsuario.add(jwt.getClaim(EMAIL_USUARIO_LOGADO).asString());
 
-		final Claim claimPermissoes = jwt.getClaim(Constants.PERMISSOES_USUARIO_LOGADO);
+		final Claim claimPermissoes = jwt.getClaim(PERMISSOES_USUARIO_LOGADO);
 
 		if (claimPermissoes != null) {
 			dadosUsuario.add(Arrays.asList(claimPermissoes.asArray(String.class)).stream().map(s -> s).collect(Collectors.joining(",")));
@@ -172,7 +185,7 @@ public class JwtService {
 		RSAKey.Builder builder = new RSAKey.Builder((RSAPublicKey) keyPair().getPublic())
 				                           .keyUse(KeyUse.SIGNATURE)
 				                           .algorithm(JWSAlgorithm.RS256)
-				                           .keyID(JWK_KID);
+				                           .keyID(JWK_SECRETS);
 		return new JWKSet(builder.build());
 	}
 

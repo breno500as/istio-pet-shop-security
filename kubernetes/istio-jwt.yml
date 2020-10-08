@@ -1,0 +1,44 @@
+apiVersion: "security.istio.io/v1beta1"
+kind: "PeerAuthentication"
+metadata:
+  name: "default"
+  namespace: "istio-system"
+spec:
+  mtls:
+    mode: STRICT
+---
+
+apiVersion: "security.istio.io/v1beta1"
+kind: "RequestAuthentication"
+metadata:
+  name: "jwt-example"
+  namespace: istio-system
+spec:
+  selector:
+    matchLabels:
+      istio: ingressgateway
+  jwtRules:
+  - issuer: "pet-shop-security@istio-pet-shop-security.herokuapp.com"
+    jwksUri: "https://istio-pet-shop-security.herokuapp.com/pet-shop/.well-known/jwks.json"
+    
+---
+
+apiVersion: "security.istio.io/v1beta1"
+kind: "AuthorizationPolicy"
+metadata:
+  name: "frontend-ingress"
+  namespace: istio-system
+spec:
+  selector:
+    matchLabels:
+      istio: ingressgateway
+  action: ALLOW
+  rules:
+  - from:
+    - source:
+        #O token precisa ter 
+        requestPrincipals: ["pet-shop-security@istio-pet-shop-security.herokuapp.com/pet-shop-security@istio-pet-shop-security.herokuapp.com"]
+    to:
+    - operation:
+       methods: ["*"]
+       paths: ["*"]

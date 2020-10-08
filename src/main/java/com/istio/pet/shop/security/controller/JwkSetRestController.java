@@ -10,14 +10,15 @@ import com.nimbusds.jose.jwk.JWKSet;
 
 @RestController
 public class JwkSetRestController {
-	
-	
+
 	@Autowired
-    private JWKSet jwkSet;
- 
-    @GetMapping("/.well-known/jwks.json")
-    public Map<String, Object> keys() {
-        return this.jwkSet.toJSONObject();
-    }
+	private JWKSet jwkSet;
+
+	@GetMapping("/.well-known/jwks.json")
+	public Map<String, Object> keys() {
+		return this.jwkSet.toJSONObject();
+	}
+
+	
 
 }
