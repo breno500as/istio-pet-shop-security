@@ -1,32 +1,41 @@
-apiVersion: "security.istio.io/v1beta1"
-kind: "PeerAuthentication"
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
 metadata:
-  name: "default"
-  namespace: "istio-system"
+  name: default
+  namespace: istio-system
 spec:
   mtls:
     mode: STRICT
 ---
 
-apiVersion: "security.istio.io/v1beta1"
-kind: "RequestAuthentication"
+apiVersion: security.istio.io/v1beta1
+kind: RequestAuthentication
 metadata:
-  name: "jwt-example"
+  name: pet-shop-jwt-authentication
   namespace: istio-system
 spec:
   selector:
     matchLabels:
       istio: ingressgateway
   jwtRules:
-  - issuer: "pet-shop-security@istio-pet-shop-security.herokuapp.com"
-    jwksUri: "https://istio-pet-shop-security.herokuapp.com/pet-shop/.well-known/jwks.json"
+  - issuer:  pet-shop-security@istio-pet-shop-security.herokuapp.com
+    jwksUri: https://istio-pet-shop-security.herokuapp.com/pet-shop/.well-known/jwks.json
+    #Repassa para a aplicação via header o payload do token codificado em base64.
+    #o payload pode conter dados importantes para a aplicação, tais como id do usuario, 
+    #nome, permissões, etc.
+    #Exemplo: {"sub":"pet-shop-security@istio-pet-shop-security.herokuapp.com",
+    #          "iss":"pet-shop-security@istio-pet-shop-security.herokuapp.com",
+    #          "exp":1602294969,
+    #          "login":"breno",
+    #          "iat":1602291369}
+    outputPayloadToHeader: x-jwt
     
 ---
 
-apiVersion: "security.istio.io/v1beta1"
-kind: "AuthorizationPolicy"
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
 metadata:
-  name: "frontend-ingress"
+  name: pet-shop-jwt-authorization
   namespace: istio-system
 spec:
   selector:
@@ -36,9 +45,5 @@ spec:
   rules:
   - from:
     - source:
-        #O token precisa ter 
+        #Exige que o token tenha a combinação de Issuer/Subject para liberar o acesso para os microserviços 
         requestPrincipals: ["pet-shop-security@istio-pet-shop-security.herokuapp.com/pet-shop-security@istio-pet-shop-security.herokuapp.com"]
-    to:
-    - operation:
-       methods: ["*"]
-       paths: ["*"]
