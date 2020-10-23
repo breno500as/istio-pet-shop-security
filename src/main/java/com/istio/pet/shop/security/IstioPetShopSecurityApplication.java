@@ -9,8 +9,11 @@ Endpoints disponibilizados pela biblioteca de saúde da aplicação: spring-boot
 http://localhost:8080/pet-shop/actuator/health
 
 Essa url pode ser utilizado pelo kubernetes para verificar a saúde da aplicação.
-
-/auditevents – lists security audit-related events such as user login/logout. Also, we can filter by principal or type among other fields
+*
+*A liberação das urls pode ser feita através do application.properties
+*management.endpoints.web.exposure.include=*
+#management.endpoints.web.exposure.exclude=loggers exclui um endpoint de ser exposto
+/auditevents – lists security audit-r*elated events such as user login/logout. Also, we can filter by principal or type among other fields
 /beans – returns all available beans in our BeanFactory. Unlike /auditevents, it doesn't support filtering
 /conditions – formerly known as /autoconfig, builds a report of conditions around auto-configuration
 /configprops – allows us to fetch all @ConfigurationProperties beans
