@@ -28,10 +28,12 @@ spec:
         prefix: /financa
     route:
      - destination:
-        host: pet-shop-finances-service.default.svc.cluster.local
+       #o host deve ser o mesmo nome do atributo name do service
+        host: pet-shop-finances.default.svc.cluster.local
   - match:
     - uri:
         prefix: /crud
     route:
      - destination:
-        host: pet-shop-crud-service.default.svc.cluster.local
+         #o host deve ser o mesmo nome do atributo name do service
+        host: pet-shop-crud.default.svc.cluster.local
