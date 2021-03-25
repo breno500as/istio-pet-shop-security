@@ -3,6 +3,7 @@ package com.istio.pet.shop.security;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+
 /**
 Endpoints disponibilizados pela biblioteca de saúde da aplicação: spring-boot-starter-actuator
 
